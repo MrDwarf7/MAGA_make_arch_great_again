@@ -95,23 +95,8 @@ function install_yay() {
 
 
 
-function rate_mirrors_string() {
-    return'export TMPFILE="$(mktemp)"; \
-        sudo true; \
-        rate-mirrors --save=$TMPFILE arch --max-delay=21600 \
-        && sudo mv /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist-backup \
-        && sudo mv $TMPFILE /etc/pacman.d/mirrorlist \
-        && ua-drop-caches \
-        && yay -Syyu --noconfirm'
-
-}
-
 
 function setup_mirrors() {
-    # check paccman output for if reflector exists
-    # if not, install it
-    # if yes, proceed with updating mirrors
-
     ua_update_all='export TMPFILE="$(mktemp)"; \
         sudo true; \
         rate-mirrors --save=$TMPFILE arch --max-delay=21600 \
@@ -226,22 +211,25 @@ function main() {
 
     $last_exit_code=0
 
-    if ! install_yay; then
+
+    
+    if ! wait install_yay; then
         echo "There was an error with the installation of yay."
         $last_exit_code=1
     fi
 
-    if ! setup_mirrors; then
+
+    if ! wait setup_mirrors; then
         echo "There was an error with the setup of mirrors."
         $last_exit_code=1
     fi
 
-    if ! rust_setup; then
+    if ! wait rust_setup; then
         echo "There was an error with the setup of Rust."
         $last_exit_code=1
     fi
 
-    if ! main_installation "${packages_to_install[@]}"; then
+    if ! wait main_installation "${packages_to_install[@]}"; then
         echo "There was an error with the main installation."
         $last_exit_code=1
     fi
@@ -256,7 +244,6 @@ function main() {
     # setup_mirrors
     # rust_setup
     # main_installation "${packages_to_install[@]}"
-
     # if [ "${#error_array[@]}" -eq 0 ]; then
     #     echo "All functions ran successfully."
     #     error_code=0
@@ -280,9 +267,6 @@ function main() {
         echo "$error_code - Exiting."
         exit 1
     fi
-
-
-
 
     # verify_installations "${packages_to_install[@]}"
     #
