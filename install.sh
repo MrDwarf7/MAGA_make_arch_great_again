@@ -207,7 +207,7 @@ function main() {
     for func in "${functions_to_run[@]}"; do
         if ! "$func"; then
             echo "There was an error with $func."
-            $error_array+=("$func")
+            $error_array+=(func)
         fi
         func
     else 
