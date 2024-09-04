@@ -52,6 +52,13 @@ packages_to_install=(
     navi
 )
 
+function remove_yay_download() {
+    downloads="$HOME/downloads"
+    yay_dir="$downloads/yay"
+    rm -rf "$yay_dir"
+    return 0
+}
+
 function install_yay() {
     downloads="$HOME/downloads"
     yay_dir="$downloads/yay"
@@ -69,7 +76,7 @@ function install_yay() {
 
     git clone https://aur.archlinux.org/yay.git "$yay_dir"
     cd "$yay_dir" && makepkg -si
-    cd "$HOME" && rm -rf "$yay_dir" # Clean up yay directory after installation
+    #cd "$HOME" && rm -rf "$yay_dir" # Clean up yay directory after installation
     return 0
 }
 
@@ -191,6 +198,11 @@ function main() {
 
     if ! verify_installations "${packages_to_install[@]}"; then
         echo "There was an error with verifying the installations."
+        last_exit_code=1
+    fi
+
+    if ! remove_yay_download; then
+        echo "There was an error with removing the yay download directory."
         last_exit_code=1
     fi
 
