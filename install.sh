@@ -196,8 +196,8 @@ function main() {
         exit 1
     fi
 
-    $error_array=()
-    $functions_to_run=(
+    error_array=()
+    functions_to_run=(
         install_yay
         setup_mirrors
         main_installation "${packages_to_install[@]}"
@@ -209,7 +209,7 @@ function main() {
             echo "There was an error with $func."
             $error_array+=("$func")
         fi
-        $func()
+        func
     else 
         
     done
