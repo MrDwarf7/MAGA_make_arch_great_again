@@ -70,11 +70,11 @@ packages_to_install=(
 )
 
 function install_yay() {
-    $downloads="$HOME/downloads"
+    downloads="$HOME/downloads"
 
     must_check_packages=(git base-devel pacman-contrib)
 
-    yay_dir = "$HOME/downloads/yay"
+    yay_dir="$HOME/downloads/yay"
 
     for package in "${must_check_packages[@]}"; do
         if ! pacman -Qi "$package" &>/dev/null; then
