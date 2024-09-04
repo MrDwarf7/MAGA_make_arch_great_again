@@ -72,7 +72,7 @@ packages_to_install=(
 function install_yay() {
     $downloads="$HOME/downloads"
 
-    $must_check_packages=(git base-devel pacman-contrib)
+    must_check_packages=(git base-devel pacman-contrib)
 
     for package in "${must_check_packages[@]}"; do
         if ! pacman -Qi "$package" &>/dev/null; then
