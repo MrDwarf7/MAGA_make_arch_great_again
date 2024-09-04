@@ -126,8 +126,7 @@ function setup_mirrors() {
     else
         echo "Reflector is installed. Proceeding with mirror update."
     fi
-    string_to_call = rate_mirrors_string()
-    eval $("$string")
+    eval $uau_update_all
     echo "Mirrors updated."
     return 0
 }
