@@ -19,7 +19,7 @@ packages_to_install=(
     ccache
     python-pynvim
     go
-    nvim
+    neovim
     tree
     yazi
     ripgrep
@@ -50,7 +50,23 @@ packages_to_install=(
     eza
     tlrc
     navi
+    zoxide
+    dust
+    xdg-user-dirs
+    pacman-cleanup-hook # NOTE: can edit /etc/pacmand.d/pacman-cache-cleanup.hook and remoe the 'v' from exec call to remove verbose
 )
+
+# TODO: If user is installing fish as shell -->> Check aliases against array calls (as binaries)
+
+# TODO: prompt user to cshs -s $(which $VAR_SHELL)
+# If user is using fish -> sudo echo $(which fish) >> /etc/shells
+
+# NOTE: useful
+# cat /etc/*release | head -1 /etc/*release | awk '{print $1}'
+# sed -n 2p /etc/*release | grep -oP '"\K[^"\047]+(?=["\047])'
+# sed -n 2p /etc/*release | grep -oP '"\K[^"\047]+(?=["\047])' | awk '{print $1}'
+# This will get the NAME of the current distro as a single item
+# where $1 is the first item in the list (which for this is ((((Arch)))) Linux)
 
 function remove_yay_download() {
     downloads="$HOME/downloads"
