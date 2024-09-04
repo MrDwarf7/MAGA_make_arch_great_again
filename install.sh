@@ -74,18 +74,20 @@ function install_yay() {
 
     must_check_packages=(git base-devel pacman-contrib)
 
+    yay_dir = "$HOME/downloads/yay"
+
     for package in "${must_check_packages[@]}"; do
         if ! pacman -Qi "$package" &>/dev/null; then
             echo "$package is not installed."
-            sudo pacman -S "$package"
+            sudo pacman -S "$package" --noconfirm --needed
         else
             echo "$package is installed."
         fi
     done
 
-    git clone https://aur.archlinux.org/yay.git "$downloads/yay"
-    cd yay && makepkg -si
-    cd .. && rm -rf yay # Clean up yay directory after installation
+    git clone https://aur.archlinux.org/yay.git "$yay_dir"
+    cd "$yay_dir" && makepkg -si
+    cd "$HOME" && rm -rf "$yay_dir" # Clean up yay directory after installation
     return 0
 }
 
@@ -93,12 +95,24 @@ function install_yay() {
 
 
 
+function rate_mirrors_string() {
+    return'export TMPFILE="$(mktemp)"; \
+        sudo true; \
+        rate-mirrors --save=$TMPFILE arch --max-delay=21600 \
+        && sudo mv /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist-backup \
+        && sudo mv $TMPFILE /etc/pacman.d/mirrorlist \
+        && ua-drop-caches \
+        && yay -Syyu --noconfirm'
+
+}
+
+
 function setup_mirrors() {
     # check paccman output for if reflector exists
     # if not, install it
     # if yes, proceed with updating mirrors
 
-    $ua_update_all='export TMPFILE="$(mktemp)"; \
+    ua_update_all='export TMPFILE="$(mktemp)"; \
         sudo true; \
         rate-mirrors --save=$TMPFILE arch --max-delay=21600 \
         && sudo mv /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist-backup \
@@ -107,13 +121,13 @@ function setup_mirrors() {
         && yay -Syyu --noconfirm'
 
     if ! pacman -Qi rate-mirrors &>/dev/null; then
-        echo "Reflector is not installed. Installing now."
+        echo "rate-mirrors is not installed. Installing now."
         yay -S rate-mirrors
     else
         echo "Reflector is installed. Proceeding with mirror update."
     fi
-
-    $ua_update_all
+    string_to_call = rate_mirrors_string()
+    eval $("$string")
     echo "Mirrors updated."
     return 0
 }
@@ -278,6 +292,7 @@ function main() {
     #     echo "$error_code - Exiting."
     #     exit 1
     # else
+
     echo "If no early exit code, or exit code > 0 then there Installation complete."
     exit $last_exit_code
     # fi
