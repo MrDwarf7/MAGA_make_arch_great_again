@@ -71,7 +71,6 @@ packages_to_install=(
 
 function install_yay() {
     local downloads="$HOME/downloads"
-    check_common_dirs "$downloads"
 
     local must_check_packages=(git base-devel pacman-contrib)
 
