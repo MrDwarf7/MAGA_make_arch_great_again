@@ -196,24 +196,54 @@ function main() {
         exit 1
     fi
 
-    error_array=()
+    # error_array=()
 
-    functions_to_run=(
-        install_yay
-        setup_mirrors
-        rust_setup
-        main_installation "${packages_to_install[@]}"
-    )
+    # functions_to_run=(
+    # )
+    #
+    # for func in "${functions_to_run[@]}"; do
+    #     if ! "$func"; then
+    #         echo "There was an error with $func."
+    #         $error_array+=($func)
+    #     fi
+    #     $func
+    # else 
+    #     
+    # done
 
-    for func in "${functions_to_run[@]}"; do
-        if ! "$func"; then
-            echo "There was an error with $func."
-            $error_array+=($func)
-        fi
-        $func
-    else 
-        
-    done
+    $last_exit_code=0
+
+    if ! install_yay; then
+        echo "There was an error with the installation of yay."
+        $last_exit_code=1
+    fi
+
+    if ! setup_mirrors; then
+        echo "There was an error with the setup of mirrors."
+        $last_exit_code=1
+    fi
+
+    if ! rust_setup; then
+        echo "There was an error with the setup of Rust."
+        $last_exit_code=1
+    fi
+
+    if ! main_installation "${packages_to_install[@]}"; then
+        echo "There was an error with the main installation."
+        $last_exit_code=1
+    fi
+
+    if [ $last_exit_code -eq 1 ]; then
+        echo "There was an error with the installation."
+        echo "$last_exit_code - Exiting."
+        exit 1
+    fi
+
+
+    # setup_mirrors
+    # rust_setup
+    # main_installation "${packages_to_install[@]}"
+
 
     if [ "${#error_array[@]}" -eq 0 ]; then
         echo "All functions ran successfully."
