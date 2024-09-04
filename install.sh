@@ -244,32 +244,43 @@ function main() {
     # rust_setup
     # main_installation "${packages_to_install[@]}"
 
+    # if [ "${#error_array[@]}" -eq 0 ]; then
+    #     echo "All functions ran successfully."
+    #     error_code=0
+    # else
+    #     echo "The following functions failed to run:"
+    #     for func in "${error_array[@]}"; do
+    #         echo "$func"
+    #     done
+    #     error_code=1
+    # fi
+    #
+    # if [ $error_code -eq 1 ]; then
+    #     echo "There was an error with the installation."
+    #     echo "$error_code - Exiting."
+    #     exit 1
+    # fi
 
-    if [ "${#error_array[@]}" -eq 0 ]; then
-        echo "All functions ran successfully."
-        error_code=0
-    else
-        echo "The following functions failed to run:"
-        for func in "${error_array[@]}"; do
-            echo "$func"
-        done
-        error_code=1
-    fi
 
-    if [ $error_code -eq 1 ]; then
+    if ! verify_installations "${packages_to_install[@]}"; then
         echo "There was an error with the installation."
         echo "$error_code - Exiting."
         exit 1
     fi
 
-    verify_installations("${packages_to_install[@]}")
-    if [ "$?" -eq 1 ]; then
-        echo "There was an error with the installation."
-        echo "$error_code - Exiting."
-        exit 1
-    else
-        echo "Installation complete."
-    fi
+
+
+
+    # verify_installations "${packages_to_install[@]}"
+    #
+    # if [ "$?" -eq 1 ]; then
+    #     echo "There was an error with the installation."
+    #     echo "$error_code - Exiting."
+    #     exit 1
+    # else
+    echo "If no early exit code, or exit code > 0 then there Installation complete."
+    exit $last_exit_code
+    # fi
 }
 
 main
