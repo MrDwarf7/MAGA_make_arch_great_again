@@ -152,6 +152,31 @@ function verify_installations() {
     return 0
 }
 
+
+### Main installation section
+function main_installation() {
+    local package_array=$1
+
+    # check if the potential array is empty, if yes then exit
+    if [ -z "$package_array" ]; then
+        echo "No packages to install in the main array at top of script."
+        exit 1
+    fi
+    if [ ! -d "/root" ]; then
+        echo "Root directory does not exist."
+        exit 1
+    else
+        echo "Root directory exists."
+        ls -la /root/
+    fi
+
+    sudo pacman -Syyu --noconfirm
+
+    yay -S --needed --noconfirm "${package_array[@]}"
+}
+
+
+
 function main() {
     # Check if the script is being run as root
     if [ "$EUID" -eq 0 ]; then
@@ -184,6 +209,9 @@ function main() {
             echo "There was an error with $func."
             $error_array+=("$func")
         fi
+        $func()
+    else 
+        
     done
 
     if [ "${#error_array[@]}" -eq 0 ]; then
@@ -203,7 +231,7 @@ function main() {
         exit 1
     fi
 
-    verify_installations "${packages_to_install[@]}"
+    verify_installations("${packages_to_install[@]}")
     if [ "$?" -eq 1 ]; then
         echo "There was an error with the installation."
         echo "$error_code - Exiting."
