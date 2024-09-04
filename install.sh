@@ -1,18 +1,16 @@
-#! /bin/bash
+#!/bin/bash
 
 packages_to_install=(
-    man-pages # Note this comes with the normal version of Arch via linux and linux-base etc.
+    man-pages
     man-db
     openssh
     autossh
     curl
     wget
-    # reflector
     namcap
     fastfetch
     zip
     unzip
-    # zsh
     fish
     make
     cmake
@@ -24,30 +22,19 @@ packages_to_install=(
     nvim
     tree
     yazi
-    # ranger
     ripgrep
     fd
     sd
     fzf
-    # tmux
     bat
     lazygit
-    # lazydocker # can also consider using lazydocker-bin, as it seems more frequently updated
-    # docker
-    # docker-buildx
-    # docker-compose
     github-cli
-    # uctags-git
-    # python-pipx
     ruff
     ruff-lsp
     pyenv
     luarocks
-    # nvim-treesitter-parsers-git
     sccache
-    # mingw-w64-rust #######################################################
-    libxcursorh
-    # win32yank-bin
+    libxcursor
     xclip
     codelldb-bin
     lldb
@@ -55,26 +42,21 @@ packages_to_install=(
     llvm
     lldb-vscode
     atool
-    # lynx
     python-pdm
     broot
     dotnet-runtime
-    dotnet-sdk # current at time of writing - 8.0~
-    # cmake-init  # install via yay, then install it INTO the pyenv env using ITS VERSION of pip
+    dotnet-sdk
     meson
     eza
-    # oh-my-posh
-    tlrc # tldr (aka tldr-pages) client -- Rust version
-    # eg the AUR package is heavily outdated (last updated: Sep 2022)
+    tlrc
     navi
 )
 
 function install_yay() {
     downloads="$HOME/downloads"
+    yay_dir="$downloads/yay"
 
     must_check_packages=(git base-devel pacman-contrib)
-
-    yay_dir="$HOME/downloads/yay"
 
     for package in "${must_check_packages[@]}"; do
         if ! pacman -Qi "$package" &>/dev/null; then
@@ -91,11 +73,6 @@ function install_yay() {
     return 0
 }
 
-
-
-
-
-
 function setup_mirrors() {
     ua_update_all='export TMPFILE="$(mktemp)"; \
         sudo true; \
@@ -109,24 +86,23 @@ function setup_mirrors() {
         echo "rate-mirrors is not installed. Installing now."
         yay -S rate-mirrors
     else
-        echo "Reflector is installed. Proceeding with mirror update."
+        echo "Rate Mirrors are installed. Proceeding with mirror update."
     fi
-    eval $uau_update_all
+    eval $ua_update_all
     echo "Mirrors updated."
     return 0
 }
 
-
 function rust_setup() {
-    sudo pacman -S rustup
+    sudo pacman -S rustup --noconfirm --needed
     rustup default stable
     echo "Rust setup complete."
     return 0
 }
 
 function verify_installations() {
-    $packages_to_verify=$1
-    $return_list=()
+    local packages_to_verify=("$@")
+    local return_list=()
 
     for package in "${packages_to_verify[@]}"; do
         if ! pacman -Qi "$package" &>/dev/null; then
@@ -147,19 +123,17 @@ function verify_installations() {
     fi
 
     echo "Installation verification complete."
-    return 0
+    return "${#return_list[@]}"
 }
 
-
-### Main installation section
 function main_installation() {
-    local package_array=$1
+    local package_array=("$@")
 
-    # check if the potential array is empty, if yes then exit
-    if [ -z "$package_array" ]; then
-        echo "No packages to install in the main array at top of script."
+    if [ "${#package_array[@]}" -eq 0 ]; then
+        echo "No packages to install in the main array at the top of the script."
         exit 1
     fi
+
     if [ ! -d "/root" ]; then
         echo "Root directory does not exist."
         exit 1
@@ -171,9 +145,8 @@ function main_installation() {
     sudo pacman -Syyu --noconfirm
 
     yay -S --needed --noconfirm "${package_array[@]}"
+    return 0
 }
-
-
 
 function main() {
     # Check if the script is being run as root
@@ -188,96 +161,41 @@ function main() {
         exit 1
     fi
 
-    # Check if the script is being run on a system with an internet connection
+    # Check if the system has an internet connection
     if ! ping -c 1 google.com &>/dev/null; then
         echo "Please check your internet connection."
         exit 1
     fi
 
-    # error_array=()
-
-    # functions_to_run=(
-    # )
-    #
-    # for func in "${functions_to_run[@]}"; do
-    #     if ! "$func"; then
-    #         echo "There was an error with $func."
-    #         $error_array+=($func)
-    #     fi
-    #     $func
-    # else 
-    #     
-    # done
-
     last_exit_code=0
 
-
-    
-    if ! wait install_yay; then
+    if ! install_yay; then
         echo "There was an error with the installation of yay."
         last_exit_code=1
     fi
 
-    if ! wait setup_mirrors; then
+    if ! setup_mirrors; then
         echo "There was an error with the setup of mirrors."
         last_exit_code=1
     fi
 
-    if ! wait rust_setup; then
+    if ! rust_setup; then
         echo "There was an error with the setup of Rust."
         last_exit_code=1
     fi
 
-    if ! wait main_installation "${packages_to_install[@]}"; then
+    if ! main_installation "${packages_to_install[@]}"; then
         echo "There was an error with the main installation."
         last_exit_code=1
     fi
 
-    if [ $last_exit_code -eq 1 ]; then
-        echo "There was an error with the installation."
-        echo "last_exit_code - Exiting."
-        exit 1
-    fi
-
-
-    # setup_mirrors
-    # rust_setup
-    # main_installation "${packages_to_install[@]}"
-    # if [ "${#error_array[@]}" -eq 0 ]; then
-    #     echo "All functions ran successfully."
-    #     error_code=0
-    # else
-    #     echo "The following functions failed to run:"
-    #     for func in "${error_array[@]}"; do
-    #         echo "$func"
-    #     done
-    #     error_code=1
-    # fi
-    #
-    # if [ $error_code -eq 1 ]; then
-    #     echo "There was an error with the installation."
-    #     echo "$error_code - Exiting."
-    #     exit 1
-    # fi
-
-
     if ! verify_installations "${packages_to_install[@]}"; then
-        echo "There was an error with the installation."
-        echo "$error_code - Exiting."
-        exit 1
+        echo "There was an error with verifying the installations."
+        last_exit_code=1
     fi
 
-    # verify_installations "${packages_to_install[@]}"
-    #
-    # if [ "$?" -eq 1 ]; then
-    #     echo "There was an error with the installation."
-    #     echo "$error_code - Exiting."
-    #     exit 1
-    # else
-
-    echo "If no early exit code, or exit code > 0 then there Installation complete."
+    echo "If no early exit code or exit code > 0, then installation complete."
     exit $last_exit_code
-    # fi
 }
 
 main
