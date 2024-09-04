@@ -70,9 +70,9 @@ packages_to_install=(
 )
 
 function install_yay() {
-    local downloads="$HOME/downloads"
+    $downloads="$HOME/downloads"
 
-    local must_check_packages=(git base-devel pacman-contrib)
+    $must_check_packages=(git base-devel pacman-contrib)
 
     for package in "${must_check_packages[@]}"; do
         if ! pacman -Qi "$package" &>/dev/null; then
@@ -90,12 +90,15 @@ function install_yay() {
 }
 
 
+
+
+
 function setup_mirrors() {
     # check paccman output for if reflector exists
     # if not, install it
     # if yes, proceed with updating mirrors
 
-    local ua-update-all='export TMPFILE="$(mktemp)"; \
+    $ua_update_all='export TMPFILE="$(mktemp)"; \
         sudo true; \
         rate-mirrors --save=$TMPFILE arch --max-delay=21600 \
         && sudo mv /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist-backup \
@@ -109,7 +112,8 @@ function setup_mirrors() {
     else
         echo "Reflector is installed. Proceeding with mirror update."
     fi
-    ua-update-all
+
+    $ua_update_all
     echo "Mirrors updated."
     return 0
 }
@@ -123,8 +127,8 @@ function rust_setup() {
 }
 
 function verify_installations() {
-    local packages_to_verify=$1
-    local return_list=()
+    $packages_to_verify=$1
+    $return_list=()
 
     for package in "${packages_to_verify[@]}"; do
         if ! pacman -Qi "$package" &>/dev/null; then
@@ -167,20 +171,18 @@ function main() {
         exit 1
     fi
 
-    local error_array=()
-    local functions_to_run=(
+    $error_array=()
+    $functions_to_run=(
         install_yay
         setup_mirrors
         main_installation "${packages_to_install[@]}"
         rust_setup
-        # nvim_from_source
-        # setup_nvm
     )
 
     for func in "${functions_to_run[@]}"; do
         if ! "$func"; then
             echo "There was an error with $func."
-            error_array+=("$func")
+            $error_array+=("$func")
         fi
     done
 
