@@ -209,34 +209,33 @@ function main() {
     #     
     # done
 
-    $last_exit_code=0
+    last_exit_code=0
 
 
     
     if ! wait install_yay; then
         echo "There was an error with the installation of yay."
-        $last_exit_code=1
+        last_exit_code=1
     fi
-
 
     if ! wait setup_mirrors; then
         echo "There was an error with the setup of mirrors."
-        $last_exit_code=1
+        last_exit_code=1
     fi
 
     if ! wait rust_setup; then
         echo "There was an error with the setup of Rust."
-        $last_exit_code=1
+        last_exit_code=1
     fi
 
     if ! wait main_installation "${packages_to_install[@]}"; then
         echo "There was an error with the main installation."
-        $last_exit_code=1
+        last_exit_code=1
     fi
 
     if [ $last_exit_code -eq 1 ]; then
         echo "There was an error with the installation."
-        echo "$last_exit_code - Exiting."
+        echo "last_exit_code - Exiting."
         exit 1
     fi
 
