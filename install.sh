@@ -57,6 +57,7 @@ packages_to_install=(
     pacman-cleanup-hook # NOTE: can edit /etc/pacmand.d/pacman-cache-cleanup.hook and remoe the 'v' from exec call to remove verbose
     git-delta           # Pager for git, similar to BAT but extra stuff
     just
+    parui
 )
 
 # TODO: If user is installing fish as shell -->> Check aliases against array calls (as binaries)
@@ -95,7 +96,26 @@ function install_yay() {
 
     git clone https://aur.archlinux.org/yay.git "$yay_dir"
     cd "$yay_dir" && makepkg -si
-    #cd "$HOME" && rm -rf "$yay_dir" # Clean up yay directory after installation
+    return 0
+}
+
+function install_paru() {
+    downloads="$HOME/downloads"
+    paru_dir="$downloads/paru"
+
+    must_check_packages=(git base-devel pacman-contrib)
+
+    for package in "${must_check_packages[@]}"; do
+        if ! pacman -Qi "$package" &>/dev/null; then
+            echo "$package is not installed."
+            sudo pacman -S "$package" --noconfirm --needed
+        else
+            echo "$package is installed."
+        fi
+    done
+
+    git clone https://aur.archlinux.org/paru.git "$paru_dir"
+    cd "$paru_dir" && makepkg -si
     return 0
 }
 
@@ -106,11 +126,11 @@ function setup_mirrors() {
         && sudo mv /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist-backup \
         && sudo mv $TMPFILE /etc/pacman.d/mirrorlist \
         && ua-drop-caches \
-        && yay -Syyu --noconfirm'
+        && paru -Syyu --noconfirm'
 
     if ! pacman -Qi rate-mirrors &>/dev/null; then
         echo "rate-mirrors is not installed. Installing now."
-        yay -S rate-mirrors
+        paru -S rate-mirrors
     else
         echo "Rate Mirrors are installed. Proceeding with mirror update."
     fi
@@ -170,7 +190,7 @@ function main_installation() {
 
     sudo pacman -Syyu --noconfirm
 
-    yay -S --needed --noconfirm "${package_array[@]}"
+    paru -S --needed --noconfirm "${package_array[@]}"
     return 0
 }
 
@@ -197,6 +217,11 @@ function main() {
 
     if ! install_yay; then
         echo "There was an error with the installation of yay."
+        last_exit_code=1
+    fi
+
+    if ! install_paru; then
+        echo "There was an error with the installation of paru."
         last_exit_code=1
     fi
 
