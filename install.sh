@@ -48,6 +48,7 @@ packages_to_install=(
     dotnet-sdk
     meson
     eza
+    btop
     tlrc
     navi
     zoxide
