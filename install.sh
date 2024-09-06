@@ -55,6 +55,7 @@ packages_to_install=(
     xdg-user-dirs
     pacman-cleanup-hook # NOTE: can edit /etc/pacmand.d/pacman-cache-cleanup.hook and remoe the 'v' from exec call to remove verbose
     git-delta           # Pager for git, similar to BAT but extra stuff
+    just
 )
 
 # TODO: If user is installing fish as shell -->> Check aliases against array calls (as binaries)
