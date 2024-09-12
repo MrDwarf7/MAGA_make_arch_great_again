@@ -26,6 +26,11 @@ packages_to_install=(
     fd
     sd
     fzf
+    yq
+    ffmpegthumbnailer
+    p7zip
+    poppler
+    imagemagick
     bat
     lazygit
     github-cli
