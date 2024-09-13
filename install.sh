@@ -63,6 +63,7 @@ packages_to_install=(
     git-delta           # Pager for git, similar to BAT but extra stuff
     just
     parui
+    ouch
 )
 
 # TODO: If user is installing fish as shell -->> Check aliases against array calls (as binaries)
