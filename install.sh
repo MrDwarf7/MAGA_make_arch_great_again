@@ -628,7 +628,7 @@ function setup_mirrors() {
 
 function rust_setup() {
     sudo pacman -S rustup --noconfirm --needed
-    rustup default stable
+    rustup default nightly
     echo "Rust setup complete."
     return 0
 }
